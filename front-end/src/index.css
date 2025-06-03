@@ -8,4 +8,8 @@
   --color-primary-800: hsl(349, 100%, 31%);
   --color-primary-900: hsl(349, 100%, 26%);
   --color-primary-950: hsl(349, 100%, 21%);
+
+  --font-hashbnb:
+    Airbnb Cereal VF, Circular, -apple-system, BlinkMacSystemFont, Roboto,
+    Helvetica Neue, sans-serif;
 }
