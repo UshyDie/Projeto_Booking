@@ -14,11 +14,19 @@ function App() {
 
   useEffect(() => {
     const axiosGet = async () => {
-      const { data } = await axios.get("/users/profile", {
-        withCredentials: true,
-      });
-
-      setUser(data);
+      try {
+        const { data } = await axios.get("/users/profile", {
+          withCredentials: true,
+        });
+        console.log("Usuário restaurado via cookie:", data);
+        setUser(data);
+      } catch (error) {
+        console.log(
+          "Usuário não autenticado:",
+          error.response?.data || error.message,
+        );
+        setUser(null); // força logout no estado
+      }
     };
     axiosGet();
   }, []);

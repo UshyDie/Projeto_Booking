@@ -12,11 +12,15 @@ const Register = ({ setUser }) => {
 
     if (email && password && name) {
       try {
-        const { data: userDoc } = await axios.post("/users", {
-          name,
-          email,
-          password,
-        });
+        const { data: userDoc } = await axios.post(
+          "/users",
+          {
+            name,
+            email,
+            password,
+          },
+          { withCredentials: true },
+        );
 
         setUser(userDoc);
         setRedirect(true);

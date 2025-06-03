@@ -21,13 +21,17 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/profile', async (req, res) => {
-  const { token } = req.cookies;
+  connectDb();
+  const token = req.cookies?.token;
 
   if (token) {
     try {
-      const userInfo = jwt.verify(token, JWT_SECRET_KEY);
-
-      res.json(userInfo);
+      const userData = jwt.verify(token, JWT_SECRET_KEY);
+      // console.log('Token decodificado:', userData);
+      const { _id, name, email } = userData;
+      // Buscar usuário no banco de dados para garantir que o usuário existe
+      // console.log({ _id, name, email });
+      res.json({ _id, name, email });
     } catch (error) {
       res.status(500).json(JSON.stringify(error));
     }
@@ -63,12 +67,12 @@ router.post('/', async (req, res) => {
     const token = jwt.sign(userPayload, JWT_SECRET_KEY);
 
     // Enviar token no cookie (para login automático)
-    res.cookie('token', token, {
-      httpOnly: true,
-      sameSite: 'lax', // ou 'strict' se quiser mais segurança
-    });
-
-    res.json(userPayload); // envia os dados do usuário sem senha
+    res
+      .cookie('token', token, {
+        httpOnly: true,
+        sameSite: 'lax', // ou 'strict' se quiser mais segurança
+      })
+      .json(userPayload); // envia os dados do usuário sem senha
   } catch (error) {
     res.status(500).json(JSON.stringify(error));
   }
