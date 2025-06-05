@@ -1,17 +1,24 @@
 import { useState } from "react";
 import Perks from "./Perks";
+import axios from "axios";
+import { Navigate } from "react-router-dom";
+import { useUserContext } from "../contexts/useUserContext";
 
 const NewPlace = () => {
+  const { user } = useUserContext();
   const [title, setTitle] = useState("");
   const [city, setCity] = useState("");
-  const [photos, setPhotos] = useState("");
+  const [photos, setPhotos] = useState([]);
   const [description, setDescription] = useState("");
   const [extras, setExtras] = useState("");
+  const [perks, setPerks] = useState([]);
   const [price, setPrice] = useState("");
   const [checkin, setCheckin] = useState("");
   const [checkout, setCheckout] = useState("");
   const [guests, setGuests] = useState("");
+  const [redirect, setRedirect] = useState(false);
   /*  const [error, setError] = useState('');
+
 
   const handleChange = (e) => {
     // Substituindo vírgula por ponto
@@ -39,9 +46,49 @@ const NewPlace = () => {
       }
   }; */
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // photos.length > 0 &&
+    if (
+      title &&
+      city &&
+      description &&
+      price &&
+      checkin &&
+      checkout &&
+      guests
+    ) {
+      try {
+        const newPlace = await axios.post("/places", {
+          owner: user._id,
+          title,
+          city,
+          photos,
+          description,
+          extras,
+          perks,
+          price,
+          checkin,
+          checkout,
+          guests,
+        });
+
+        console.log("Anúncio criado com sucesso:", newPlace.data);
+        console.log(newPlace);
+        alert("Anúncio criado com sucesso!");
+
+        setRedirect(true);
+      } catch (error) {
+        console.error("Erro ao criar o anúncio:", JSON.stringify(error));
+        alert("Erro ao criar o anúncio. Por favor, tente novamente.");
+      }
+    } else {
+      alert("Por favor, preencha todos os campos obrigatórios.");
+    }
   };
+
+  if (redirect) return <Navigate to={"/account/places"} />;
 
   return (
     <form onSubmit={handleSubmit} className="flex w-full flex-col gap-6 px-8">
@@ -133,7 +180,7 @@ const NewPlace = () => {
       <div className="flex flex-col gap-1">
         <h2 className="ml-2 text-2xl font-bold">Comodidades</h2>
 
-        <Perks />
+        <Perks {...{ perks, setPerks }} />
 
         <label htmlFor="extras" className="ml-2 text-2xl font-bold">
           Informações extras

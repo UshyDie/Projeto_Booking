@@ -2,7 +2,7 @@ import { Router } from 'express';
 import Place from './model.js';
 import { JWTVerify } from '../../utils/jwt.js';
 import { connectDb } from '../../config/db.js';
-
+import { __dirname } from '../../index.js';
 const router = Router();
 
 router.post('/', async (req, res) => {
@@ -48,6 +48,12 @@ router.post('/', async (req, res) => {
     console.error('Erro ao criar lugar:', error);
     return res.status(500).json({ error: 'Erro ao criar o novo lugar' });
   }
+});
+
+router.post('/upload/link', async (req, res) => {
+  // connectDb(); // Conectando ao banco de dados
+  const { link } = req.body;
+  await downloadImage(link, `${__dirname}/tmp/`); // Função para baixar a imagem do link fornecido
 });
 
 export default router;
