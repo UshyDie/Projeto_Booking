@@ -6,7 +6,7 @@ import { Navigate } from "react-router-dom";
 
 const Account = () => {
   const { subpage } = useParams();
-  const { user } = useUserContext();
+  const { user, ready } = useUserContext();
 
   const buttonClass = (button) => {
     let finalClass =
@@ -15,7 +15,7 @@ const Account = () => {
     return finalClass;
   };
 
-  if (!user) return <Navigate to="/login" />;
+  if (!user && ready) return <Navigate to="/login" />;
 
   return (
     <section className="flex flex-col items-center gap-4 p-8">

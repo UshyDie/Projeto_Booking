@@ -2,7 +2,8 @@ import { Router } from 'express';
 import Place from './model.js';
 import { JWTVerify } from '../../utils/jwt.js';
 import { connectDb } from '../../config/db.js';
-import { __dirname } from '../../index.js';
+import { __dirname } from '../../server.js';
+import { downloadImage } from '../../utils/imageDownloader.js'; // Função para baixar imagens
 const router = Router();
 
 router.post('/', async (req, res) => {
@@ -53,7 +54,15 @@ router.post('/', async (req, res) => {
 router.post('/upload/link', async (req, res) => {
   // connectDb(); // Conectando ao banco de dados
   const { link } = req.body;
-  await downloadImage(link, `${__dirname}/tmp/`); // Função para baixar a imagem do link fornecido
+
+  try {
+    const fullPath = await downloadImage(link, `${__dirname}/tmp/`); // Função para baixar a imagem do link fornecido
+    console.log(fullPath);
+    res.json(fullPath);
+  } catch (error) {
+    console.error('Erro ao processar o link:', error);
+    return res.status(500).json({ error: 'Erro ao processar o link' });
+  }
 });
 
 export default router;

@@ -3,6 +3,7 @@ import Perks from "./Perks";
 import axios from "axios";
 import { Navigate } from "react-router-dom";
 import { useUserContext } from "../contexts/useUserContext";
+import PhotoUploader from "./PhotoUploader";
 
 const NewPlace = () => {
   const { user } = useUserContext();
@@ -17,6 +18,7 @@ const NewPlace = () => {
   const [checkout, setCheckout] = useState("");
   const [guests, setGuests] = useState("");
   const [redirect, setRedirect] = useState(false);
+  const [photosLink, setPhotosLink] = useState("");
   /*  const [error, setError] = useState('');
 
 
@@ -92,6 +94,7 @@ const NewPlace = () => {
 
   return (
     <form onSubmit={handleSubmit} className="flex w-full flex-col gap-6 px-8">
+      {/*  Title */}
       <div className="flex flex-col gap-1">
         <label htmlFor="title" className="ml-2 text-2xl font-bold">
           Título
@@ -106,6 +109,7 @@ const NewPlace = () => {
         />
       </div>
 
+      {/* City */}
       <div className="flex flex-col gap-1">
         <label htmlFor="city" className="ml-2 text-2xl font-bold">
           Cidade e País
@@ -119,50 +123,8 @@ const NewPlace = () => {
           onChange={(e) => setCity(e.target.value)}
         />
       </div>
-
-      <div className="flex flex-col gap-1">
-        <label htmlFor="photos" className="ml-2 text-2xl font-bold">
-          Fotos
-        </label>
-
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Adicione sua foto pelo link dela"
-            className="grow rounded-full border border-gray-300 px-4 py-2"
-            id="photos"
-            value={photos}
-            onChange={(e) => setPhotos(e.target.value)}
-          />
-          <button className="cursor-pointer rounded-full border border-gray-100 bg-gray-300 px-4 py-2 transition hover:bg-gray-200">
-            Enviar foto
-          </button>
-        </div>
-
-        <div className="mt-2 grid grid-cols-5 gap-4">
-          <label
-            htmlFor="file"
-            className="flex aspect-square cursor-pointer items-center justify-center rounded-2xl border border-gray-300"
-          >
-            <input type="file" id="file" className="hidden" />
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="size-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
-              />
-            </svg>
-            Upload
-          </label>
-        </div>
-      </div>
+      {/* Photos */}
+      <PhotoUploader {...{ photosLink, setPhotosLink, photos, setPhotos }} />
 
       <div className="flex flex-col gap-1">
         <label htmlFor="description" className="ml-2 text-2xl font-bold">
@@ -179,7 +141,7 @@ const NewPlace = () => {
 
       <div className="flex flex-col gap-1">
         <h2 className="ml-2 text-2xl font-bold">Comodidades</h2>
-
+        {/* Comodidades */}
         <Perks {...{ perks, setPerks }} />
 
         <label htmlFor="extras" className="ml-2 text-2xl font-bold">
@@ -194,10 +156,6 @@ const NewPlace = () => {
         />
 
         <h2 className="ml-2 text-2xl font-bold">Restrições e preços</h2>
-
-        <label htmlFor="extras" className="ml-2 text-2xl font-bold">
-          Informações extras
-        </label>
 
         <div className="grid grid-cols-[repeat(auto-fit,minmax(225px,1fr))] gap-6">
           <div className="flex flex-col gap-2">
