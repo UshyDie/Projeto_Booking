@@ -3,17 +3,17 @@ import { Router } from 'express';
 import { connectDb } from '../../config/db.js';
 import User from './model.js';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import { JWTSing, JWTVerify } from '../../utils/jwt.js';
 
 const router = Router();
 const bcryptSalt = bcrypt.genSaltSync();
-const { JWT_SECRET_KEY } = process.env;
 
 router.get('/', async (req, res) => {
   connectDb();
 
   try {
     const userDoc = await User.find();
+    console.log('userDoc: ', userDoc);
     res.json(userDoc);
   } catch (error) {
     res.status(500).json(JSON.stringify(error));
@@ -22,22 +22,11 @@ router.get('/', async (req, res) => {
 
 router.get('/profile', async (req, res) => {
   connectDb();
-  const token = req.cookies?.token;
-
-  if (token) {
-    try {
-      const userData = jwt.verify(token, JWT_SECRET_KEY);
-      // console.log('Token decodificado:', userData);
-      const { _id, name, email } = userData;
-      // Buscar usuário no banco de dados para garantir que o usuário existe
-      // console.log({ _id, name, email });
-      res.json({ _id, name, email });
-    } catch (error) {
-      res.status(500).json(JSON.stringify(error));
-    }
-  } else {
-    res.json(null);
-  }
+  const userData = await JWTVerify(req);
+  const { _id, name, email } = userData;
+  console.log('Dados do usuário:', userData);
+  console.log({ _id, name, email });
+  res.json(userData, { _id, name, email });
 });
 
 router.post('/', async (req, res) => {
@@ -51,6 +40,7 @@ router.post('/', async (req, res) => {
       return res.status(400).json('Email já cadastrado');
     }
     const encryptedPassword = bcrypt.hashSync(password, bcryptSalt);
+
     const newUserDoc = await User.create({
       name,
       email,
@@ -64,15 +54,19 @@ router.post('/', async (req, res) => {
       email: newUserDoc.email,
     };
 
-    const token = jwt.sign(userPayload, JWT_SECRET_KEY);
-
-    // Enviar token no cookie (para login automático)
-    res
-      .cookie('token', token, {
-        httpOnly: true,
-        sameSite: 'lax', // ou 'strict' se quiser mais segurança
-      })
-      .json(userPayload); // envia os dados do usuário sem senha
+    try {
+      const token = await JWTSing(userPayload);
+      // Enviar token no cookie (para login automático)
+      res
+        .cookie('token', token, {
+          httpOnly: false,
+          sameSite: 'lax', // ou 'strict' se quiser mais segurança
+        })
+        .json(userPayload); // envia os dados do usuário sem senha
+    } catch (error) {
+      console.error('Erro ao gerar token:', error);
+      return res.status(500).json('Erro ao gerar token');
+    }
   } catch (error) {
     res.status(500).json(JSON.stringify(error));
   }
@@ -87,29 +81,46 @@ router.post('/login', async (req, res) => {
     const userDoc = await User.findOne({ email });
     if (userDoc) {
       const passwordCorrect = bcrypt.compareSync(password, userDoc.password);
-      const { name, _id } = userDoc;
-
       if (passwordCorrect) {
+        const { name, _id } = userDoc;
+
+        // Armazena o ID do usuário na sessão
+        req.session.userId = _id;
+        console.log('ID do usuário armazenado na sessão:', req.session.userId); // Verifique se o ID está armazenado
+
         const newUserObj = { _id, name, email };
-        const token = jwt.sign(newUserObj, JWT_SECRET_KEY);
+        const token = await JWTSing(newUserObj);
 
         res
           .cookie('token', token, {
             httpOnly: true,
             sameSite: 'lax', // ou 'strict'
-            secure: false, // use true se for https
+            secure: false, // Mude para true se estiver usando HTTPS
           })
-          .json(newUserObj);
+          .json(newUserObj); // envia os dados do usuário sem senha
       } else {
-        res.status(400).json('Senha inválida!');
+        return res.status(400).json('Senha inválida!');
       }
     } else {
-      res.status(400).json('Usuário não encontrado!');
+      return res.status(400).json('Usuário não encontrado!');
     }
   } catch (error) {
     console.error('Erro ao logar:', error);
-    res.status(500).json(JSON.stringify(error));
+    return res.status(500).json(JSON.stringify(error));
   }
+});
+
+// Rota de Logout
+router.post('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    // Destrói a sessão
+    if (err) {
+      console.error('Erro ao deslogar:', err);
+      return res.status(500).json({ error: 'Erro ao deslogar' });
+    }
+    res.clearCookie('token'); // Remove o cookie do token
+    res.json({ message: 'Deslogado com sucesso' }); // Envia a resposta
+  });
 });
 
 export default router;
