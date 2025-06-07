@@ -6,6 +6,19 @@ import { sendToS3, downloadImage, uploadImage } from './controller.js';
 
 const router = Router();
 
+router.get('/', async (req, res) => {
+  connectDb();
+
+  try {
+    const placeDocs = await Place.find();
+
+    res.json(placeDocs);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json('Deu erro encontrar as Acomodações');
+  }
+});
+
 router.post('/', async (req, res) => {
   connectDb(); // Conectando ao banco de dados
 

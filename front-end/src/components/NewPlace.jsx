@@ -55,6 +55,7 @@ const NewPlace = () => {
     if (
       title &&
       city &&
+      photos.length > 0 &&
       description &&
       price &&
       checkin &&
@@ -123,9 +124,11 @@ const NewPlace = () => {
           onChange={(e) => setCity(e.target.value)}
         />
       </div>
+
       {/* Photos */}
       <PhotoUploader {...{ photosLink, setPhotosLink, photos, setPhotos }} />
 
+      {/* Descrição */}
       <div className="flex flex-col gap-1">
         <label htmlFor="description" className="ml-2 text-2xl font-bold">
           Descrição
@@ -139,11 +142,12 @@ const NewPlace = () => {
         />
       </div>
 
+      {/* Comodidades/Perks/Informações extras/Preços */}
       <div className="flex flex-col gap-1">
         <h2 className="ml-2 text-2xl font-bold">Comodidades</h2>
-        {/* Comodidades */}
-        <Perks {...{ perks, setPerks }} />
 
+        <Perks {...{ perks, setPerks }} />
+        {/*  Informações extras*/}
         <label htmlFor="extras" className="ml-2 text-2xl font-bold">
           Informações extras
         </label>
@@ -156,7 +160,7 @@ const NewPlace = () => {
         />
 
         <h2 className="ml-2 text-2xl font-bold">Restrições e preços</h2>
-
+        {/* Preços */}
         <div className="grid grid-cols-[repeat(auto-fit,minmax(225px,1fr))] gap-6">
           <div className="flex flex-col gap-2">
             <label className="ml-2 text-xl font-bold" htmlFor="price">
