@@ -34,8 +34,8 @@ const Account = () => {
       </div>
 
       {subpage === "profile" && <AccProfile />}
-      {subpage === "bookings" && <h2>Reservas</h2>}
       {subpage === "places" && <AccPlaces />}
+      {subpage === "bookings" && <h2>Reservas</h2>}
     </section>
   );
 };

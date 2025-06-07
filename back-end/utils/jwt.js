@@ -4,25 +4,23 @@ import User from '../domains/users/model.js';
 
 const { JWT_SECRET_KEY } = process.env;
 
-export const JWTVerify = (req, res) => {
-  const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
+export const JWTVerify = (req) => {
+  const { token } = req.cookies;
 
-  // console.log('resposta de token', token);
-  if (!token) {
-    console.error('Token não fornecido ou inválido');
-    return res.status(401).json('Token não fornecido', error);
-  }
+  if (token) {
+    return new Promise((resolve, reject) => {
+      jwt.verify(token, JWT_SECRET_KEY, {}, (error, userInfo) => {
+        if (error) {
+          console.error('Deu algum erro ao verificar com o JWT:', error);
+          reject(error);
+        }
 
-  return new Promise((resolve, reject) => {
-    jwt.verify(token, JWT_SECRET_KEY, {}, (error, userData) => {
-      if (error) {
-        console.error('Erro ao verificar token:', error);
-        reject(error);
-      }
-      // console.log('Token decodificado:', userData);
-      resolve(userData);
+        resolve(userInfo);
+      });
     });
-  });
+  } else {
+    return null;
+  }
 };
 
 export const JWTSing = (newUserObj) => {
@@ -32,7 +30,7 @@ export const JWTSing = (newUserObj) => {
       JWT_SECRET_KEY,
       { expiresIn: '1d' },
       (error, token) => {
-        if (error) {
+        if (error || !token) {
           console.error('Erro ao gerar token:', error);
           reject('Erro ao gerar token');
         }

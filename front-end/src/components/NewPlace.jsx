@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Perks from "./Perks";
 import axios from "axios";
-import { Navigate } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { useUserContext } from "../contexts/useUserContext";
 import PhotoUploader from "./PhotoUploader";
 
 const NewPlace = () => {
+  const { id } = useParams();
   const { user } = useUserContext();
   const [title, setTitle] = useState("");
   const [city, setCity] = useState("");
@@ -19,39 +20,31 @@ const NewPlace = () => {
   const [guests, setGuests] = useState("");
   const [redirect, setRedirect] = useState(false);
   const [photosLink, setPhotosLink] = useState("");
-  /*  const [error, setError] = useState('');
 
+  useEffect(() => {
+    if (id) {
+      const axiosGet = async () => {
+        const { data } = await axios.get(`/places/${id}`);
 
-  const handleChange = (e) => {
-    // Substituindo vírgula por ponto
-    const inputPrice = e.target.value.replace(",", ".");
-  Verifica se o valor é um número válido
-      if (/^(\d+|\d+,\d+)?$/.test(inputValue)) {
-          setPrice(inputPrice);
-          setError(''); // Limpa a mensagem de erro se válido
-      } else {
-          setError('Por favor, digite um número válido.');
-      }
-  };
-  
-  };
+        setTitle(data.title);
+        setCity(data.city);
+        setPhotos(data.photos);
+        setDescription(data.description);
+        setExtras(data.extras);
+        setPerks(data.perks);
+        setPrice(data.price);
+        setCheckin(data.checkin);
+        setCheckout(data.checkout);
+        setGuests(data.guests);
+      };
 
-  const handleBlur = () => {
-    // Converte para float ao perder o foco
-    const floatValue = parseFloat(price);
-   
-        Verifica se o valor é um número após a conversão
-      if (!isNaN(floatValue)) {
-          console.log(floatValue); // Aqui você pode usar o valor float conforme necessário
-      } else {
-          setError('Número inválido na conversão.');
-      }
-  }; */
+      axiosGet();
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // photos.length > 0 &&
     if (
       title &&
       city &&
@@ -62,32 +55,52 @@ const NewPlace = () => {
       checkout &&
       guests
     ) {
-      try {
-        const newPlace = await axios.post("/places", {
-          owner: user._id,
-          title,
-          city,
-          photos,
-          description,
-          extras,
-          perks,
-          price,
-          checkin,
-          checkout,
-          guests,
-        });
+      if (id) {
+        try {
+          const modifiedPlace = await axios.put(`/places/${id}`, {
+            title,
+            city,
+            photos,
+            description,
+            extras,
+            perks,
+            price,
+            checkin,
+            checkout,
+            guests,
+          });
 
-        console.log("Anúncio criado com sucesso:", newPlace.data);
-        console.log(newPlace);
-        alert("Anúncio criado com sucesso!");
+          console.log(modifiedPlace);
+        } catch (error) {
+          console.error(JSON.stringify(error));
+          alert("Deu erro ao tentar atualizar o lugar");
+        }
+      } else {
+        try {
+          const newPlace = await axios.post("/places", {
+            owner: user._id,
+            title,
+            city,
+            photos,
+            description,
+            extras,
+            perks,
+            price,
+            checkin,
+            checkout,
+            guests,
+          });
 
-        setRedirect(true);
-      } catch (error) {
-        console.error("Erro ao criar o anúncio:", JSON.stringify(error));
-        alert("Erro ao criar o anúncio. Por favor, tente novamente.");
+          console.log(newPlace);
+        } catch (error) {
+          console.error(JSON.stringify(error));
+          alert("Deu erro ao tentar criar um novo lugar");
+        }
       }
+
+      setRedirect(true);
     } else {
-      alert("Por favor, preencha todos os campos obrigatórios.");
+      alert("Preencha todas as informações antes de enviar");
     }
   };
 
