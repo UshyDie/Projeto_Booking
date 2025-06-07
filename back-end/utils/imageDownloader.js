@@ -1,13 +1,13 @@
 import download from 'image-downloader';
 import mime from 'mime-types';
 
-export const downloadImage = async (link, dest) => {
+export const downloadImage = async (link, destination) => {
   const mimeType = mime.lookup(link);
   const contentType = mime.contentType(mimeType);
   const extension = mime.extension(contentType);
 
   const filename = `${Date.now()}.${extension}`;
-  const fullPath = `${dest}${filename}`;
+  const fullPath = `${destination}${filename}`;
 
   try {
     const options = {
@@ -16,12 +16,12 @@ export const downloadImage = async (link, dest) => {
     };
 
     // console.log('Downloading image from:', link);
-
     await download.image(options);
 
-    return filename;
+    console.log(mimeType);
+    return { filename, fullPath, mimeType };
 
-    // console.log('Saved to', filename); // saved to /path/to/dest/photo.jpg
+    // console.log('Saved to', filename);
   } catch (error) {
     console.error('Download failed:', error);
     throw error;

@@ -7,9 +7,7 @@ const { JWT_SECRET_KEY } = process.env;
 export const JWTVerify = (req, res) => {
   const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
 
-  //
-  // console.log("token", token);
-  console.log('resposta de token', token);
+  // console.log('resposta de token', token);
   if (!token) {
     console.error('Token não fornecido ou inválido');
     return res.status(401).json('Token não fornecido', error);
@@ -21,7 +19,7 @@ export const JWTVerify = (req, res) => {
         console.error('Erro ao verificar token:', error);
         reject(error);
       }
-      console.log('Token decodificado:', userData);
+      // console.log('Token decodificado:', userData);
       resolve(userData);
     });
   });

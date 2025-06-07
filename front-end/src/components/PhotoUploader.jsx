@@ -7,16 +7,40 @@ const PhotoUploader = ({ photosLink, setPhotosLink, photos, setPhotos }) => {
     e.preventDefault();
 
     if (photosLink) {
-      const { data: filename } = await axios.post("/places/upload/link", {
-        link: photosLink,
-      });
+      try {
+        const { data: filename } = await axios.post("/places/upload/link", {
+          link: photosLink,
+        });
 
-      setPhotos((prevValue) => {
-        return [...prevValue, filename];
-      });
-      alert("Foto enviada com sucesso!");
+        setPhotos((prevValue) => {
+          return [...prevValue, filename];
+        });
+        alert("Foto enviada com sucesso!");
+      } catch (error) {
+        alert("Erro no upload por link", JSON.stringify(error));
+      }
     } else {
       alert("Por favor, insira um link de foto válido.");
+    }
+  };
+
+  const uploadPhoto = async (e) => {
+    const { files } = e.target;
+    const filesArray = [...files];
+
+    const formData = new FormData();
+
+    filesArray.forEach((file) => formData.append("files", file));
+
+    try {
+      const { data: urlArray } = await axios.post("/places/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      console.log("Upload realizado com sucesso.", urlArray);
+      setPhotos((prevValue) => [...prevValue, ...urlArray]);
+    } catch (error) {
+      alert("Erro no upload", JSON.stringify(error));
     }
   };
 
@@ -44,23 +68,29 @@ const PhotoUploader = ({ photosLink, setPhotosLink, photos, setPhotos }) => {
         </button>
       </div>
 
-      {/* uplaodByFile */}
       <div className="mt-2 grid grid-cols-5 gap-4">
         {photos.map((photo) => (
           <img
-            key={photo}
-            // src={`http://localhost:3000/uploads/${photo}`}
             className="aspect-square rounded-2xl object-cover"
-            src={`${axios.defaults.baseURL}/tmp/${photo}`}
+            src={`${photo}`}
             alt="Imagens da Acomodação"
+            key={photo}
           />
         ))}
-        {/* "C:\\Users\\diefe\\OneDrive\\Documentos\\Fullstack\\HTML-CSS-Javascript\\Aulas_ReactJS\\ReactJS\\Projeto_Booking\\back-end/tmp/1749217166813.jpg" */}
+
+        {/* uplaodByFile */}
         <label
           htmlFor="file"
           className="flex aspect-square cursor-pointer items-center justify-center rounded-2xl border border-gray-300"
         >
-          <input type="file" id="file" className="hidden" />
+          <input
+            type="file"
+            id="file"
+            className="hidden"
+            multiple
+            accept="image/*"
+            onChange={uploadPhoto}
+          />
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
