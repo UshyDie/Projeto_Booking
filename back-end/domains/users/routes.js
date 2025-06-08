@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
 
   try {
     const userDoc = await User.find();
-    console.log('userDoc: ', userDoc);
+    // console.log('userDoc: ', userDoc);
     res.json(userDoc);
   } catch (error) {
     res.status(500).json(JSON.stringify(error));
@@ -24,8 +24,8 @@ router.get('/profile', async (req, res) => {
   connectDb();
   const userData = await JWTVerify(req);
   const { _id, name, email } = userData;
-  console.log('Dados do usuário:', userData);
-  console.log({ _id, name, email });
+  // console.log('Dados do usuário:', userData);
+  // console.log({ _id, name, email });
   res.json(userData, { _id, name, email });
 });
 
@@ -86,7 +86,7 @@ router.post('/login', async (req, res) => {
 
         // Armazena o ID do usuário na sessão
         req.session.userId = _id;
-        console.log('ID do usuário armazenado na sessão:', req.session.userId); // Verifique se o ID está armazenado
+        // console.log('ID do usuário armazenado na sessão:', req.session.userId); // Verifique se o ID está armazenado
 
         const newUserObj = { _id, name, email };
         const token = await JWTSing(newUserObj);

@@ -36,7 +36,6 @@ app.use(
   })
 );
 
-// app.use('/uploads', express.static(__dirname + '/uploads'));
 app.use('/tmp', express.static(__dirname + '/tmp'));
 
 app.use(routers);
